@@ -3,7 +3,7 @@ var bodyParser = require("body-parser");
 var mongodb = require("mongodb");
 var ObjectID = mongodb.ObjectID;
 
-var CONTACTS_COLLECTION = "contacts";
+var TOPICS_COLLECTION = "topics";
 
 var app = express();
 app.use(bodyParser.json());
@@ -33,7 +33,7 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI || "mongodb://localhost:2701
   });
 });
 
-// CONTACTS API ROUTES BELOW
+// TOPICS API ROUTES BELOW
 
 // Generic error handler used by all endpoints.
 function handleError(res, reason, message, code) {
@@ -41,31 +41,31 @@ function handleError(res, reason, message, code) {
   res.status(code || 500).json({"error": message});
 }
 
-/*  "/api/contacts"
- *    GET: finds all contacts
- *    POST: creates a new contact
+/*  "/api/topics"
+ *    GET: finds all topics
+ *    POST: creates a new topic
  */
 
-app.get("/api/contacts", function(req, res) {
-  db.collection(CONTACTS_COLLECTION).find({}).toArray(function(err, docs) {
+app.get("/api/topics", function(req, res) {
+  db.collection(TOPICS_COLLECTION).find({}).toArray(function(err, docs) {
     if (err) {
-      handleError(res, err.message, "Failed to get contacts.");
+      handleError(res, err.message, "Failed to get topics.");
     } else {
       res.status(200).json(docs);
     }
   });
 });
 
-app.post("/api/contacts", function(req, res) {
+app.post("/api/topics", function(req, res) {
   var newContact = req.body;
   newContact.createDate = new Date();
 
   if (!req.body.name) {
     handleError(res, "Invalid user input", "Must provide a name.", 400);
   } else {
-    db.collection(CONTACTS_COLLECTION).insertOne(newContact, function(err, doc) {
+    db.collection(TOPICS_COLLECTION).insertOne(newContact, function(err, doc) {
       if (err) {
-        handleError(res, err.message, "Failed to create new contact.");
+        handleError(res, err.message, "Failed to create new topic.");
       } else {
         res.status(201).json(doc.ops[0]);
       }
@@ -73,29 +73,29 @@ app.post("/api/contacts", function(req, res) {
   }
 });
 
-/*  "/api/contacts/:id"
- *    GET: find contact by id
- *    PUT: update contact by id
- *    DELETE: deletes contact by id
+/*  "/api/topics/:id"
+ *    GET: find topic by id
+ *    PUT: update topic by id
+ *    DELETE: deletes topic by id
  */
 
-app.get("/api/contacts/:id", function(req, res) {
-  db.collection(CONTACTS_COLLECTION).findOne({ _id: new ObjectID(req.params.id) }, function(err, doc) {
+app.get("/api/topics/:id", function(req, res) {
+  db.collection(TOPICS_COLLECTION).findOne({ _id: new ObjectID(req.params.id) }, function(err, doc) {
     if (err) {
-      handleError(res, err.message, "Failed to get contact");
+      handleError(res, err.message, "Failed to get topic");
     } else {
       res.status(200).json(doc);
     }
   });
 });
 
-app.put("/api/contacts/:id", function(req, res) {
+app.put("/api/topics/:id", function(req, res) {
   var updateDoc = req.body;
   delete updateDoc._id;
 
-  db.collection(CONTACTS_COLLECTION).updateOne({_id: new ObjectID(req.params.id)}, updateDoc, function(err, doc) {
+  db.collection(TOPICS_COLLECTION).updateOne({_id: new ObjectID(req.params.id)}, updateDoc, function(err, doc) {
     if (err) {
-      handleError(res, err.message, "Failed to update contact");
+      handleError(res, err.message, "Failed to update topic");
     } else {
       updateDoc._id = req.params.id;
       res.status(200).json(updateDoc);
@@ -103,12 +103,26 @@ app.put("/api/contacts/:id", function(req, res) {
   });
 });
 
-app.delete("/api/contacts/:id", function(req, res) {
-  db.collection(CONTACTS_COLLECTION).deleteOne({_id: new ObjectID(req.params.id)}, function(err, result) {
+app.delete("/api/topics/:id", function(req, res) {
+  db.collection(TOPICS_COLLECTION).deleteOne({_id: new ObjectID(req.params.id)}, function(err, result) {
     if (err) {
-      handleError(res, err.message, "Failed to delete contact");
+      handleError(res, err.message, "Failed to delete topic");
     } else {
       res.status(200).json(req.params.id);
+    }
+  });
+});
+
+/*  "/api/topics/random"
+ *    GET: find topic by random id
+ */
+
+app.get("/api/topics/random", function(req, res) {
+  db.collection(TOPICS_COLLECTION).findOne({ _id: new ObjectID(req.params.id) }, function(err, doc) {
+    if (err) {
+      handleError(res, err.message, "Failed to get topic");
+    } else {
+      res.status(200).json(doc);
     }
   });
 });
