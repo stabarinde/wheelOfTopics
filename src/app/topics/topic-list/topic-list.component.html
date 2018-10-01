@@ -1,0 +1,22 @@
+<div class="row">
+  <div class="col-md-5">
+    <h2>Topics</h2>
+    <ul class="list-group">
+      <li class="list-group-item"
+        *ngFor="let topic of topics"
+        (click)="selectTopic(topic)"
+        [class.active]="topic === selectedTopic">
+        {{topic.name}}
+      </li>
+    </ul>
+    <button class="btn btn-warning" (click)="createNewTopic()">New</button>
+  </div>
+  <div class="col-md-5 col-md-offset-2">
+    <topic-details
+      [topic]="selectedTopic"
+      [createHandler]="addTopic"
+      [updateHandler]="updateTopic"
+      [deleteHandler]="deleteTopic">
+    </topic-details>
+  </div>
+</div>
